@@ -237,6 +237,13 @@ place(fxb, sparkle(1.6, 34, 56), 26.72, .35)
 place(fxb, blip(600, 1200, .1, 'rich'), 27.85, .25)
 place(fxb, sparkle(.6, 10, 57, 4000, 9000), 28.5, .2)
 
+def boing(f0=260, d=.55):
+    t = tt(d); f = f0 + 260 * (1 - np.exp(-t * 25)) + 70 * np.sin(2 * np.pi * 13 * t) * np.exp(-t * 5)
+    ph = 2 * np.pi * np.cumsum(f) / SR; x = (np.sin(ph) + .25 * np.sin(2 * ph)) * env(len(t), .004, d, 4)
+    return verb(x * .8, .25)
+for tm, g in [(2.78, .28), (7.88, .35), (15.3, .35), (26.75, .25)]: place(fxb, boing(), tm, g)
+for tm in (8.75, 9.25, 9.75): place(fxb, boing(340, .3), tm, .12, pan=-.6)
+for i in range(6): place(fxb, boing(380 + 30 * i, .25), 16.3 + i * .25, .07)
 # ---------- VOICE ----------
 def load_vo(i):
     x, sr = sf.read(f"{B}/vo/vo_{i}.wav"); x = signal.resample_poly(x, SR, sr)
