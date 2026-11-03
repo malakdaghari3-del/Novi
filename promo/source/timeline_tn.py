@@ -62,6 +62,13 @@ if sys.argv[1] == 'draft':
     split1 = L[0][0] + (L[0][1] - L[0][0]) * .55
     split9 = L[8][0] + (L[8][1] - L[8][0]) * .5
     vo_offset = 0.0; vo_path = None
+elif sys.argv[1].endswith('.json'):
+    # manual line map (from listening / alignment), times in the recording's own clock
+    M = json.load(open(sys.argv[1])); vo_path = M['vo']
+    vo_offset = 0.6 - M['lines'][0][0]
+    L = [[a + vo_offset, b + vo_offset] for a, b in M['lines']]
+    split1 = M['split1'] + vo_offset; split9 = M['split9'] + vo_offset
+    EXTRA = {k: v + vo_offset for k, v in M.get('marks', {}).items()}
 else:
     vo_path = sys.argv[1]
     raw, total = detect_lines(vo_path)
@@ -72,13 +79,14 @@ else:
     split9 = inner_split(vo_path, *raw[8], frac=.5) + vo_offset
     L = [[a + vo_offset, b + vo_offset] for a, b in raw]
 
+EXTRA = globals().get('EXTRA', {})
 Ls = [l[0] for l in L]; Le = [l[1] for l in L]
 sc = []
 def add(id, s, e, **kw): sc.append(dict(id=id, s=round(s, 3), e=round(e, 3), **kw))
 A_e = Ls[1] - .3; add('A', 0, A_e, split=round(split1, 3))
 B_e = Ls[2] - .15; add('B', A_e, B_e)
 C_e = Ls[4] - .2; add('C', B_e, C_e, l4=round(Ls[3] - B_e, 3))
-E_e = Ls[5] - .2; add('E', C_e, E_e)
+E_e = Ls[5] - .2; add('E', C_e, E_e, **({'eh': round(EXTRA['tsawer'] - C_e, 3), 'er': round(EXTRA['translate'] - C_e, 3)} if 'tsawer' in EXTRA else {}))
 F_e = Ls[6] - .2; add('F', E_e, F_e)
 G_e = Ls[7] - .2; add('G', F_e, G_e)
 H_e = Ls[8] - .2; add('H', G_e, H_e)
@@ -91,7 +99,7 @@ def knots(s):
         l4 = s['l4']
         return [[0, 2.7], [.6, 3.25], [max(.7, l4 - .1), 3.3], [max(.8, l4 + .5), 3.9], [max(.9, d - .4), 3.94], [d, 4.3]]
     if i == 'E':
-        r = min(max(d * .42, 2.6), 3.2)
+        r = s.get('er') or min(max(d * .42, 2.6), 3.2)
         return [[0, 4.2], [r, 7.2], [min(r + 2.7, d - .5), 9.9], [d - .45, 11.75], [d, 12.2]]
     if i == 'F': return [[0, 15.2], [d - .45, 18.75], [d, 19.2]]
     if i == 'G': return [[0, 19.2], [.55, 19.75], [.6, 21.1], [d - .45, 23.3], [d, 23.75]]
@@ -104,7 +112,15 @@ for s in sc:
     k = knots(s)
     if k: s['knots'] = [[round(a, 3), round(b, 3)] for a, b in k]
 
-tl = dict(total=round(J_e, 3), lines=[[round(a, 3), round(b, 3)] for a, b in L], scenes=sc, vo=vo_path, vo_offset=round(vo_offset, 3))
+def S_(i): return next(q for q in sc if q['id'] == i)
+C_, F_, H_, J_ = S_('C'), S_('F'), S_('H'), S_('J')
+Hd = H_['e'] - H_['s']; Hc1 = min(1.9, Hd - .9)
+rig = dict(
+  wave=[[C_['s'] + .6, C_['s'] + 2.1], [H_['s'] + Hc1 - .2, H_['s'] + Hc1 + 1.3], [J_['s'] + .9, J_['s'] + 2.4]],
+  wink=[[Le[2] - .05 if Le[2] < C_['e'] - .6 else C_['s'] + 2.3, .55], [F_['e'] - 1.0, .55], [J_['e'] - 1.25, .6]],
+  flick=[F_['s'] + (16.3 + i * .25 - 15.2) * (F_['e'] - F_['s']) / 4.0 for i in range(3)] + [C_['s'] + .1, J_['s'] + .1],
+  tilt=[[S_('B')['s'] + .5, S_('B')['e'] - .2, 9]])
+tl = dict(rig=rig, total=round(J_e, 3), lines=[[round(a, 3), round(b, 3)] for a, b in L], scenes=sc, vo=vo_path, vo_offset=round(vo_offset, 3))
 open(f"{B}/tl.json", 'w').write(json.dumps(tl, indent=1))
 open(f"{B}/tl.js", 'w').write("window.TL=" + json.dumps(tl) + ";")
 print(json.dumps(dict(total=tl['total'], scenes=[(s['id'], s['s'], s['e']) for s in sc]), indent=None))

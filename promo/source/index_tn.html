@@ -73,6 +73,8 @@ canvas{position:absolute;left:0;top:0}
 .node .lbl{position:absolute;top:186px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:30px;font-weight:700}
 .node .chk{position:absolute;right:-2px;top:-2px;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#fb55b0,#ff888d);display:grid;place-items:center;font-size:26px;font-weight:900;box-shadow:0 0 20px rgba(255,80,170,.8)}
 .masc{height:600px;transform-origin:50% 100%;filter:drop-shadow(0 30px 40px rgba(0,0,0,.6))}
+.rig{width:1039px;height:2042px;transform-origin:50% 100%}
+.rl{position:absolute;left:0;top:0;width:1039px;height:2042px;overflow:visible}
 .title{font-size:84px;font-weight:800;letter-spacing:-0.035em;white-space:nowrap}
 /* chat */
 .bub{padding:26px 32px;font-size:31px;font-weight:600;line-height:1.32;border-radius:32px;white-space:nowrap}
@@ -115,7 +117,19 @@ canvas{position:absolute;left:0;top:0}
   <!-- logo -->
   <div id="icon" class="a icon"><svg viewBox="0 0 100 100" fill="none" stroke="#fff" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round">
     <path d="M30 42V36Q30 30 36 30H42"/><path d="M58 30H64Q70 30 70 36V42"/><path d="M70 58V64Q70 70 64 70H58"/><path d="M42 70H36Q30 70 30 64V58"/><path d="M39 50H61"/></svg></div>
-  <img id="mFront" class="a masc" src="assets/mascot-front.png">
+  <div id="mFront" class="a rig" data-base="2042">
+    <img class="rl" src="assets/rig/body.png">
+    <div class="rl" id="rHead" style="transform-origin:520px 1300px">
+      <img class="rl" id="rEarL" src="assets/rig/earL.png" style="transform-origin:300px 480px">
+      <img class="rl" id="rEarR" src="assets/rig/earR.png" style="transform-origin:745px 470px">
+      <img class="rl" src="assets/rig/head.png">
+      <img class="rl" id="rBlinkL" src="assets/rig/eyeL_blink.png" style="opacity:0">
+      <img class="rl" id="rBlinkR" src="assets/rig/eyeR_blink.png" style="opacity:0">
+      <img class="rl" id="rWinkR" src="assets/rig/eyeR_wink.png" style="opacity:0">
+      <img class="rl" src="assets/rig/glasses.png">
+    </div>
+    <img class="rl" id="rArm" src="assets/rig/arm.png" style="transform-origin:800px 1415px">
+  </div>
   <img id="m34" class="a masc" src="assets/mascot-34.png">
   <div id="word" class="a word"></div>
   <div id="tagl" class="a tagl ar" style="font-size:40px;font-weight:700">تطبيقة تخدم بالـ AI</div>
@@ -388,7 +402,7 @@ function sceneLogo(t){
   const d=t-t0, oy=-90*out, ob=12*out, oa=1-out;
   const ip=P(d,0,.5);
   if(t0===26.7){T($('icon'),{x:lay.x,y:lay.iy,s:lerp(.2,1,eb(P(d,.1,.6)))*(1+.03*Math.sin(d*3)),r:lerp(-25,0,eo(P(d,.1,.6))),a:P(d,.1,.22)});glowAt(lay.x,lay.iy,360,.35*P(d,.1,.3)*(.85+.15*Math.sin(d*4)));
-    hide($('mFront'));mascot($('m34'),{x:600,y:560,h:780,d,flip:true,a:1});glowAt(600,560,520,.22*P(d,0,.3));}
+    hide($('m34'));mascot($('mFront'),{x:600,y:575,h:790,d,a:1});glowAt(600,560,520,.22*P(d,0,.3));}
   else {hide($('icon'));hide($('m34'));mascot($('mFront'),{x:960,y:375+oy,h:560,d,a:oa,blur:ob});glowAt(960,380+oy,420,.3*P(d,0,.2)*oa*(.85+.15*Math.sin(d*4)))}
   T($('word'),{x:lay.x,y:lay.wy+oy,a:oa,blur:ob});
   wl.forEach((l,i)=>{const p=P(d,.18+i*.045,.18+i*.045+.45);const e=eo5(p);l.style.transform=`translateY(${(1-e)*70}px) scale(${lerp(.6,1,eb(p))})`;l.style.opacity=cl(p*2.5);l.style.filter=p<1?`blur(${(1-e)*10}px)`:'none'});
@@ -406,7 +420,7 @@ function sceneLogo(t){
 }
 function mascot(el,{x,y,h,d,flip=false,a=1,blur=0,bounce=[]}){
   // pop-in with squash & stretch, then idle bob/breathe; d = time since entrance
-  const s0=h/600, ip=P(d,0,.55);
+  const base=el.dataset.base?+el.dataset.base:600, s0=h/base, ip=P(d,0,.55); y=y+300-base/2;
   let sc=lerp(.15,1,eb(ip)), sq=.18*Math.sin(Math.min(1,d/.55)*Math.PI*2.2)*Math.exp(-d*3);
   for(const b of bounce){const k=d-b;if(k>=0&&k<.5)sq+=.12*Math.sin(k/.5*Math.PI*2)*Math.exp(-k*6)}
   const bob=d>.55?Math.sin(RT*3.2)*9:0, br=1+.012*Math.sin(RT*2.6);
@@ -417,7 +431,7 @@ function sceneMascot(t,logoShown){
   const f=$('mFront'),m=$('m34');
   if(!logoShown){hide(f);hide(m)}
   if(t>=7.85&&t<12.3){const x=ei(P(t,11.7,12.15));mascot(m,{x:175-500*x,y:840,h:540,d:t-7.85,flip:true,a:1-P(t,12.0,12.15),blur:12*x,bounce:[.9,1.4,1.9]});glowAt(175,820,320,.15*(1-x))}
-  else if(t>=15.25&&t<19.3){const x=eio(P(t,18.75,19.2));mascot(f,{x:960,y:1010+250*x,h:470,d:t-15.25,a:1-x,blur:10*x,bounce:[1.05,1.3,1.55,1.8,2.05,2.3]});glowAt(960,880,380,.25*(1-x))}
+  else if(t>=15.25&&t<19.3){const x=eio(P(t,18.75,19.2));mascot(f,{x:960,y:935+300*x,h:470,d:t-15.25,a:1-x,blur:10*x,bounce:[1.05,1.3,1.55,1.8,2.05,2.3]});glowAt(960,880,380,.25*(1-x))}
 }
 function phoneState(t){
   // returns transform for phone, or null
@@ -622,7 +636,7 @@ function sceneB(u,d){
 function sceneEHead(u,d,K){
   if(u<0||u>d){hide($('eH'));hide($('eH2'));return}
   const r=K[1][0];
-  const p=eo(P(u,.5,.95)),x=eio(P(u,r-.4,r-.05));T($('eH'),{x:430,y:520+30*(1-p),a:p*(1-x),blur:8*(1-p)+12*x});
+  const EH=(CUR&&CUR.eh)||.5;const p=eo(P(u,EH-.1,EH+.35)),x=eio(P(u,r-.4,r-.05));T($('eH'),{x:430,y:520+30*(1-p),a:p*(1-x),blur:8*(1-p)+12*x});
   const p2=eo(P(u,r+.3,r+.75)),x2=eio(P(u,d-.5,d-.1));T($('eH2'),{x:1330,y:160+20*(1-p2),a:p2*(1-x2),blur:8*(1-p2)+12*x2});
 }
 function sceneH(u,d){
@@ -642,9 +656,10 @@ function sceneH(u,d){
   AORB.forEach((w,i)=>{const ang=i/AORB.length*6.283+u*.2;const z=Math.sin(ang);T($('ao'+i),{x:960+800*Math.cos(ang),y:520+380*z*.85,s:.7+.25*(z+1)/2,a:P(u,.2,.6)*(.08+.12*(z+1)/2)*xa,blur:(1-z)*2+xb})});
   return c1;
 }
+let CUR=null;
 function render(t){
   RT=t;
-  const S=TL.scenes;let k=S.findIndex(q=>t>=q.s&&t<q.e);if(k<0)k=S.length-1;const sc=S[k];const u=t-sc.s,d=sc.e-sc.s;
+  const S=TL.scenes;let k=S.findIndex(q=>t>=q.s&&t<q.e);if(k<0)k=S.length-1;const sc=S[k];const u=t-sc.s,d=sc.e-sc.s;CUR=sc;
   const oldT=sc.knots?mapK(u,sc.knots):-10;
   let sh=0;
   if(sc.id==='C'||sc.id==='J'){for(const [tb,amt] of [[2.7,14],[26.7,12]]){const dd=oldT-tb;if(dd>=0&&dd<.45)sh+=Math.pow(1-dd/.45,2)*amt}}
@@ -657,12 +672,35 @@ function render(t){
   if(sc.id!=='H')AORB.forEach((_,i)=>hide($('ao'+i)));
   sceneA(sc.id==='A'?u:-1,d,sc.split||d*.55);sceneB(sc.id==='B'?u:-1,d);sceneEHead(sc.id==='E'?u:-1,d,sc.knots||[[0,0],[0,0]]);
   const c1=sceneH(sc.id==='H'?u:-1,d);
+  if(sc.id==='B'){const x=eio(P(u,d-.5,d-.1));mascot($('mFront'),{x:1700,y:905+300*x,h:470,d:u-.3,a:(u>.3?1:0)*(1-x),blur:10*x});glowAt(1700,930,300,.18*(1-x))}
+  if(sc.id==='H'){const x=eio(P(u,d-.45,d-.05));mascot($('mFront'),{x:1680,y:850+300*x,h:520,d:u-.35,a:(u>.35?1:0)*(1-x),blur:10*x});glowAt(1690,900,320,.16*(1-x))}
+  rigPose(t);
   if(sc.id==='C')burst(960,400,2.7,oldT,{seed:2,n:110});
   if(sc.id==='H'&&c1){burst(1130,480,c1,u,{seed:12,n:80,speed:1200,ring:600,flash:.6});const dd=u-c1;if(dd>=0&&dd<.4){const a=Math.pow(1-dd/.4,2)*6;$('stage').style.transform=`translate(${Math.sin(t*93)*a}px,${Math.cos(t*71)*a}px)`}}
   if(sc.id==='J'&&oldT>=26.7){burst(1210,330,26.7,oldT,{seed:8,n:90,speed:1200,ring:650});burst(600,540,26.7,oldT,{seed:9,n:90,speed:1300,ring:750,flash:.7})}
   post.clearRect(0,0,1920,1080);post.drawImage(vign,0,0);
   post.globalAlpha=.055;post.globalCompositeOperation='overlay';post.drawImage(grains[Math.floor(t*30)%6],0,0,1920,1080);post.globalAlpha=1;post.globalCompositeOperation='source-over';
   $('black').style.opacity=Math.max(1-P(t,0,.25),P(t,TL.total-.45,TL.total));
+}
+function rigPose(t){
+  const RG=TL.rig||{wave:[],wink:[],flick:[],tilt:[]};
+  // arm wave
+  let arm=0;for(const [a,b] of RG.wave){if(t>a-.01&&t<b+.35){const up=eo(P(t,a,a+.28)),down=1-eio(P(t,b,b+.32));const k=Math.min(up,down);arm=-(68+22*Math.sin((t-a)*2*Math.PI*2.1))*k}}
+  // wink + blink
+  let wink=0;for(const [a,dur] of RG.wink){const k=Math.min(P(t,a,a+.07),1-P(t,a+dur-.08,a+dur));if(k>0)wink=k}
+  const ph=(t+0.7)%3.1;let blink=(ph<.13&&!wink)?1:0;
+  // head tilt (idle sway + toward the wink + confused tilt)
+  let head=2*Math.sin(t*1.3);
+  for(const [a,dur] of RG.wink){head+=7*Math.min(eo(P(t,a-.1,a+.15)),1-eio(P(t,a+dur,a+dur+.3)))}
+  for(const [a,b,amt] of RG.tilt){head+=amt*Math.min(eo(P(t,a,a+.4)),1-eio(P(t,b-.3,b)))*(1+.15*Math.sin(t*3))}
+  if(arm)head+=3*Math.sin((t)*2*Math.PI*2.1);
+  // ears: idle sway + flicks
+  let eL=3*Math.sin(t*2.1),eR=-3*Math.sin(t*2.1+.8);
+  for(const f of RG.flick){const dd=t-f;if(dd>=0&&dd<.8){const w=Math.sin(dd*26)*Math.exp(-dd*6)*12;eL+=w;eR-=w}}
+  for(const [a,b,amt] of RG.tilt){const k=Math.min(eo(P(t,a,a+.4)),1-eio(P(t,b-.3,b)));eL-=10*k;eR+=10*k}
+  $('rArm').style.transform=`rotate(${arm}deg)`;$('rHead').style.transform=`rotate(${head}deg)`;
+  $('rEarL').style.transform=`rotate(${eL}deg)`;$('rEarR').style.transform=`rotate(${eR}deg)`;
+  $('rWinkR').style.opacity=wink>0?1:0;$('rBlinkL').style.opacity=blink;$('rBlinkR').style.opacity=blink;
 }
 function initPaths(){
   // underline paths sized to the measured Arabic lines

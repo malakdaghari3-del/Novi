@@ -250,6 +250,13 @@ for j in range(1, 400):
 at(h0 + c1, impact(.6, 71), .55); at(h0 + c1, ding(1567.98), .35); at(h0 + c1 + .02, sparkle(1.0, 18, 72), .25)
 at(E('H') - .4, whoosh(.45, 2800, 300, 73, .4, -.4), .35)
 
+# mascot: wave swooshes + wink twinkles
+RG = TLD.get('rig', {})
+for a_, b_ in RG.get('wave', []):
+    for k in range(3): at(a_ + .05 + k * .48, whoosh(.32, 900, 2600, 90 + k, .3, .6), .09)
+for a_, d_ in RG.get('wink', []):
+    at(a_, blip(1800, 2600, .05), .16, .4); at(a_ + .07, blip(2400, 3300, .06), .13, .5); at(a_ + .02, sparkle(.5, 8, 95, 4500, 9000), .14)
+for f_ in RG.get('flick', []): at(f_, boing(520, .2), .05)
 # ---------- VOICE ----------
 vo = np.zeros((N, 2))
 if TLD.get('vo'):
