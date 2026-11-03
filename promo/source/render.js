@@ -6,14 +6,14 @@ const path = require('path');
   const browser = await chromium.launch({ args: ['--font-render-hinting=none', '--force-color-profile=srgb'] });
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
   page.on('console', m => console.log('page:', m.text())); page.on('pageerror', e => console.log('ERR', e.message));
-  await page.goto('file://' + path.join(dir, 'index.html'));
+  await page.goto('file://' + path.join(dir, process.env.PAGE||'index.html'));
   await page.evaluate(() => window.ready);
   if (mode === 'preview') {
     const times = process.argv.slice(3).map(Number);
     for (const t of times) { await page.evaluate(t => render(t), t); await page.screenshot({ path: path.join(dir, process.env.PREV||'prev', `f_${t.toFixed(2)}.png`) }); }
   } else {
-    const fps = 30, N = 900;
-    const ff = spawn('ffmpeg', ['-v', 'error', '-y', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'mjpeg', '-i', '-', '-c:v', 'libx264', '-preset', 'slow', '-crf', '15', '-pix_fmt', 'yuv420p', '-r', String(fps), path.join(dir, 'video_silent.mp4')], { stdio: ['pipe', 'inherit', 'inherit'] });
+    const fps = 30, N = Math.round((await page.evaluate(() => window.TL ? TL.total : 30)) * fps);
+    const ff = spawn('ffmpeg', ['-v', 'error', '-y', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'mjpeg', '-i', '-', '-c:v', 'libx264', '-preset', 'slow', '-crf', '15', '-pix_fmt', 'yuv420p', '-r', String(fps), path.join(dir, process.env.OUT||'video_silent.mp4')], { stdio: ['pipe', 'inherit', 'inherit'] });
     for (let f = 0; f < N; f++) {
       await page.evaluate(t => render(t), f / fps);
       const buf = await page.screenshot({ type: 'jpeg', quality: 95 });
