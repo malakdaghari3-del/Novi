@@ -1,0 +1,25 @@
+# Environments & deps
+.venv/
+node_modules/
+__pycache__/
+tools/
+
+# Media is large: keep it out of git (folders kept via .gitkeep)
+media/**/*
+!media/**/.gitkeep
+exports/*
+!exports/.gitkeep
+transcripts/*
+!transcripts/.gitkeep
+
+# HyperFrames working files
+motion/.hyperframes/
+motion/renders/
+motion/assets/transcript.json
+*.mp4
+*.mov
+*.mkv
+*.webm
+*.wav
+*.mp3
+*.m4a

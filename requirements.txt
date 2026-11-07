@@ -1,0 +1,11 @@
+# Downloading
+yt-dlp>=2026.10.26
+# Transcription (Whisper via CTranslate2 - fast on CPU, no PyTorch needed)
+faster-whisper>=1.2.1
+# Silence / dead-air cutting
+auto-editor>=29.3.1
+# Scene / shot detection
+scenedetect>=0.7.2
+opencv-python-headless>=4.10
+# Audio scripting
+pydub>=0.25.1

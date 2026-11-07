@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Download a video (or audio) with yt-dlp into media/downloads/.
+#   scripts/download <url>              best video+audio, merged to mp4
+#   scripts/download <url> --audio      audio only (wav, ready for Whisper)
+#   scripts/download <url> --720        cap at 720p
+#   scripts/download <url> --subs       also grab subtitles if available
+# Any other flags are passed straight to yt-dlp.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+YTDLP="$ROOT/.venv/bin/yt-dlp"
+[ -x "$YTDLP" ] || YTDLP="yt-dlp"
+
+url="${1:?usage: scripts/download <url> [--audio|--720|--1080|--subs] [yt-dlp flags]}"; shift
+out="$ROOT/media/downloads/%(title).80B [%(id)s].%(ext)s"
+args=(-o "$out" --restrict-filenames --no-playlist)
+fmt=(-f "bv*[ext=mp4]+ba[ext=m4a]/bv*+ba/b" --merge-output-format mp4)
+
+extra=()
+for a in "$@"; do
+  case "$a" in
+    --audio) fmt=(-x --audio-format wav); out="$ROOT/media/audio/%(title).80B [%(id)s].%(ext)s"; args[1]="$out" ;;
+    --720)   fmt=(-f "bv*[height<=720]+ba/b[height<=720]" --merge-output-format mp4) ;;
+    --1080)  fmt=(-f "bv*[height<=1080]+ba/b[height<=1080]" --merge-output-format mp4) ;;
+    --subs)  extra+=(--write-subs --write-auto-subs --sub-langs "en.*" --convert-subs srt) ;;
+    *)       extra+=("$a") ;;
+  esac
+done
+
+exec "$YTDLP" "${args[@]}" "${fmt[@]}" "${extra[@]}" "$url"
