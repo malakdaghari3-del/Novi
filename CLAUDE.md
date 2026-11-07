@@ -1,6 +1,7 @@
 # Novi video studio
 
 This repo is a video editing workspace. See README.md for the tools and workflow.
+**Follow STYLE.md on every edit** (pink captions, no purple, no neon).
 
 - Run `./setup.sh` first in a fresh environment (creates `.venv`, installs Node packages, vendors GSAP).
 - Python tools live in `.venv/bin/` (yt-dlp, auto-editor, scenedetect); Whisper runs via `.venv/bin/python scripts/transcribe.py`.
