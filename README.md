@@ -75,7 +75,8 @@ also work offline.
 **Animated captions from your own transcript:**
 
 ```bash
-cd motion && npx hyperframes transcribe ../transcripts/clip.words.json
+cp transcripts/clip.words.json motion/assets/
+cd motion && npx hyperframes transcribe assets/clip.words.json   # → motion/assets/transcript.json
 ```
 
 **Graphics over footage:** render with a transparent background

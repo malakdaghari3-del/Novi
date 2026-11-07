@@ -8,7 +8,7 @@ Writes to transcripts/<name>.{txt,srt,vtt,json,words.json}:
   .words.json  flat word list in HyperFrames format:
                [{"id": "w0", "text": "Hello", "start": 0.0, "end": 0.5}, ...]
                Import into a motion project with:
-               (cd motion && npx hyperframes transcribe ../transcripts/<name>.words.json)
+               cp transcripts/<name>.words.json motion/assets/ && (cd motion && npx hyperframes transcribe assets/<name>.words.json)
 
 Usage:
   scripts/transcribe.py <file> [--model small] [--language en] [--translate]

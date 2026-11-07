@@ -2,6 +2,7 @@
 yt-dlp>=2026.10.26
 # Transcription (Whisper via CTranslate2 - fast on CPU, no PyTorch needed)
 faster-whisper>=1.2.1
+av<19  # PyAV 19 dropped an argument faster-whisper 1.2.1 uses
 # Silence / dead-air cutting
 auto-editor>=29.3.1
 # Scene / shot detection
